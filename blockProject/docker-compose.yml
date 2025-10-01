@@ -1,0 +1,124 @@
+version: '3.8'
+
+services:
+  # MongoDB Database
+  mongodb:
+    image: mongo:6.0
+    container_name: supply-chain-mongodb
+    ports:
+      - "27017:27017"
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=admin123
+      - MONGO_INITDB_DATABASE=supplychain
+    volumes:
+      - mongodb_data:/data/db
+      - ./scripts/mongodb-init.js:/docker-entrypoint-initdb.d/init.js:ro
+    restart: unless-stopped
+    networks:
+      - supply-chain-network
+
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    container_name: supply-chain-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+    networks:
+      - supply-chain-network
+
+  # IPFS Node
+  ipfs:
+    image: ipfs/go-ipfs:latest
+    container_name: supply-chain-ipfs
+    ports:
+      - "4001:4001"
+      - "5001:5001"
+      - "8080:8080"
+    volumes:
+      - ipfs_data:/data/ipfs
+    restart: unless-stopped
+    networks:
+      - supply-chain-network
+
+  # Hardhat Local Blockchain
+  hardhat:
+    image: node:18-alpine
+    container_name: supply-chain-hardhat
+    working_dir: /app
+    ports:
+      - "8545:8545"
+    volumes:
+      - ./packages/contracts:/app
+    command: sh -c "npm install && npx hardhat node --hostname 0.0.0.0"
+    networks:
+      - supply-chain-network
+
+  # API Gateway
+  api-gateway:
+    build:
+      context: ./packages/api-gateway
+      dockerfile: Dockerfile
+    container_name: supply-chain-api
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=development
+      - PORT=3000
+      - MONGODB_URI=mongodb://admin:admin123@mongodb:27017/supplychain?authSource=admin
+      - REDIS_URL=redis://redis:6379
+      - BLOCKCHAIN_RPC_URL=http://hardhat:8545
+      - JWT_SECRET=dev-jwt-secret-change-in-production
+      - QR_SIGNATURE_SECRET=dev-qr-secret-change-in-production
+    depends_on:
+      - mongodb
+      - redis
+      - hardhat
+    restart: unless-stopped
+    networks:
+      - supply-chain-network
+
+  # Web Dashboard
+  web-dashboard:
+    build:
+      context: ./packages/web-dashboard
+      dockerfile: Dockerfile
+    container_name: supply-chain-web
+    ports:
+      - "3001:3000"
+    environment:
+      - NODE_ENV=development
+      - NEXT_PUBLIC_API_URL=http://localhost:3000
+    depends_on:
+      - api-gateway
+    restart: unless-stopped
+    networks:
+      - supply-chain-network
+
+  # Nginx Load Balancer
+  nginx:
+    image: nginx:alpine
+    container_name: supply-chain-nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - api-gateway
+      - web-dashboard
+    restart: unless-stopped
+    networks:
+      - supply-chain-network
+
+volumes:
+  mongodb_data:
+  redis_data:
+  ipfs_data:
+
+networks:
+  supply-chain-network:
+    driver: bridge

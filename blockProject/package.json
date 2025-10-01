@@ -1,0 +1,43 @@
+{
+  "name": "supply-chain-blockchain",
+  "version": "1.0.0",
+  "description": "Blockchain Supply Chain Application for Agricultural Produce Tracking",
+  "main": "index.js",
+  "scripts": {
+    "dev": "concurrently \"npm run dev:contracts\" \"npm run dev:api\" \"npm run dev:web\"",
+    "dev:contracts": "cd packages/contracts && npm run dev",
+    "dev:api": "cd packages/api-gateway && npm run dev",
+    "dev:web": "cd packages/web-dashboard && npm run dev",
+    "dev:mobile": "cd packages/mobile-app && npm start",
+    "dev:qr": "cd packages/qr-service && npm run dev",
+    "build": "npm run build:contracts && npm run build:api && npm run build:web",
+    "build:contracts": "cd packages/contracts && npm run compile",
+    "build:api": "cd packages/api-gateway && npm run build",
+    "build:web": "cd packages/web-dashboard && npm run build",
+    "test": "npm run test:contracts && npm run test:api && npm run test:web",
+    "test:contracts": "cd packages/contracts && npm test",
+    "test:api": "cd packages/api-gateway && npm test",
+    "test:web": "cd packages/web-dashboard && npm test",
+    "install:all": "npm install && cd packages/contracts && npm install && cd ../api-gateway && npm install && cd ../web-dashboard && npm install && cd ../mobile-app && npm install && cd ../qr-service && npm install",
+    "start": "docker-compose up -d",
+    "stop": "docker-compose down",
+    "logs": "docker-compose logs -f",
+    "clean": "docker-compose down -v && docker system prune -f"
+  },
+  "keywords": [
+    "blockchain",
+    "supply-chain",
+    "agriculture",
+    "traceability",
+    "ethereum",
+    "smart-contracts"
+  ],
+  "author": "Blockchain Supply Chain Team",
+  "license": "MIT",
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  },
+  "workspaces": [
+    "packages/*"
+  ]
+}

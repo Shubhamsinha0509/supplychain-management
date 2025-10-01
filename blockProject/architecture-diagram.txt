@@ -1,0 +1,77 @@
+BLOCKCHAIN SUPPLY-CHAIN APPLICATION ARCHITECTURE
+==================================================
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                              FRONTEND LAYER                                 │
+├─────────────────────────────────────────────────────────────────────────────┤
+│  React/Next.js Dashboard  │  React Native Mobile  │  Government Portal    │
+│  - Farmer Dashboard       │  - QR Scanner         │  - Monitoring         │
+│  - Consumer App           │  - Logistics Update   │  - Analytics          │
+│  - Retailer Interface     │  - History Viewer     │  - Compliance         │
+└─────────────────────────────────────────────────────────────────────────────┘
+                                    │
+                                    ▼
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                            API GATEWAY LAYER                               │
+├─────────────────────────────────────────────────────────────────────────────┤
+│  Node.js + Express API Gateway                                             │
+│  - Authentication & Authorization                                          │
+│  - Rate Limiting & Validation                                              │
+│  - Request Routing & Load Balancing                                        │
+│  - API Versioning                                                          │
+└─────────────────────────────────────────────────────────────────────────────┘
+                                    │
+                                    ▼
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                            BUSINESS LOGIC LAYER                            │
+├─────────────────────────────────────────────────────────────────────────────┤
+│  Microservices:                                                             │
+│  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐        │
+│  │   Produce   │  │  Logistics  │  │   Pricing   │  │   Quality   │        │
+│  │  Service    │  │   Service   │  │   Service   │  │   Service   │        │
+│  └─────────────┘  └─────────────┘  └─────────────┘  └─────────────┘        │
+└─────────────────────────────────────────────────────────────────────────────┘
+                                    │
+                                    ▼
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                            BLOCKCHAIN LAYER                                │
+├─────────────────────────────────────────────────────────────────────────────┤
+│  Ethereum Smart Contracts (or Hyperledger)                                 │
+│  ┌─────────────────────────────────────────────────────────────────────────┐ │
+│  │  SupplyChain.sol - Main contract for batch tracking                    │ │
+│  │  Pricing.sol - Fair pricing enforcement                                │ │
+│  │  Quality.sol - Quality certification                                   │ │
+│  │  Events: BatchCreated, StatusUpdated, PriceSet, QualityVerified        │ │
+│  └─────────────────────────────────────────────────────────────────────────┘ │
+└─────────────────────────────────────────────────────────────────────────────┘
+                                    │
+                                    ▼
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                            DATA STORAGE LAYER                              │
+├─────────────────────────────────────────────────────────────────────────────┤
+│  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐        │
+│  │   MongoDB  │  │    IPFS     │  │  Blockchain  │  │   Redis     │        │
+│  │  - Users    │  │  - Images   │  │  - Batch IDs │  │  - Cache    │        │
+│  │  - Events   │  │  - Docs     │  │  - Events   │  │  - Sessions │        │
+│  │  - Batches  │  │  - Videos   │  │  - Hashes   │  │  - Rate     │        │
+│  │  - History  │  │  - Certs    │  │  - Pricing  │  │  - Limits   │        │
+│  └─────────────┘  └─────────────┘  └─────────────┘  └─────────────┘        │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+DATA FLOW:
+1. Farmer registers produce → Smart Contract → MongoDB + IPFS
+2. QR Code generated → Contains batch ID + API endpoint
+3. Transporter scans QR → Updates logistics → Blockchain event
+4. Wholesaler scans QR → Verifies authenticity → Sets fair price
+5. Retailer scans QR → Adds retail info → Final pricing
+6. Consumer scans QR → Views full history → Trust verification
+7. Government monitors → Analytics dashboard → Compliance tracking
+
+SECURITY LAYERS:
+- JWT Authentication
+- Role-based Access Control
+- Input Validation & Sanitization
+- Rate Limiting
+- Private Key Management
+- Data Encryption (at rest & in transit)
+- Smart Contract Access Control
